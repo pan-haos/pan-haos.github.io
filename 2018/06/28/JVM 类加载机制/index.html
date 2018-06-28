@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="日常技术分享">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Pan Hao">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Jvm类加载机制"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="日常技术分享" />
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="panhaos_blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    <meta name="twitter:card" content="summary" />
+    
+
+    <!-- Title -->
+    
+    <title>Jvm类加载机制 - panhaos_blog</title>
+
+    <!-- Tachyons Core CSS -->
+    <link rel="stylesheet" href="//unpkg.com/tachyons/css/tachyons.min.css">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Google Analytics -->
+    
+
+
+</head>
+
+
+<body>
+
+<!-- Main Content -->
+<!-- Banner -->
+<!-- Banner -->
+<div class="w-100 bg-1 ph5-ns ph3 text-light">
+    
+    <nav class="db dt-l w-100 mw8 center border-box pv3">
+        <a class="db dtc-l v-mid link dim w-100 w-25-l tc tl-l mb2 mb0-l white" href="/" title="panhaos_blog">
+            <img src="http://www.codeblocq.com/assets/projects/hexo-theme-anodyne/assets/anodyne.svg" class="dib h3" alt="panhaos_blog">
+        </a>
+        <div class="db dtc-l v-mid w-100 w-75-l tc tr-l">
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/" 
+                    title="主页">
+                    主页
+                </a>
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/archives" 
+                    title="档案">
+                    档案
+                </a>
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/" 
+                    title="关于">
+                    关于
+                </a>
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/" 
+                    title="联系">
+                    联系
+                </a>
+            
+        </div>
+    </nav>
+
+    <!-- Title -->
+    <div class="w-100 mw8 center vh-40 dt">
+        <div class="dtc v-mid white">
+            <h1 class="f1-l f2-m tc tc-m tl-ns">Jvm类加载机制</h1>
+            <p class="f4 fw3 pab-100px tc tc-m tl-ns">2018-06-28</p>
+        </div>
+    </div>
+
+    <!-- Icon -->
+    <div class="relative w-100 mw8 center white dn dn-m db-ns">
+        <i class="header-icon fa fa-file-text-o"></i>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="w-100 ph2 ph4-m ph5-l mv5 mv6-l">
+    <div class="content">
+        <div class="mw8 center">
+            <div class="cf">
+                <div class="fl w-100 w-70-l mw7 left fw3 lh-copy pr4-ns pr0-m post-content">
+                    <!-- Tags Vertical -->
+                    
+                        <div class="tags-container-vertical">
+                            <div class="tags-sub-container">
+                                <a class="fw3 ph1 dib" href="/tags/jvm/">#jvm</a> <a class="fw3 ph1 dib" href="/tags/类加载/">#类加载</a> <a class="fw3 ph1 dib" href="/tags/原理/">#原理</a>
+                            </div>
+                        </div>
+                    
+
+                    <!-- Main Post Content -->
+                    <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在<code>java</code>文件被编译成<code>class</code>文件存储为二进制字节码后，并不能直接使用，经过类加载，一个类才可以被装载进运行时内存并被使用。因此理解类加载机制才能让我们更深刻地理解我们编写的<code>java</code>代码是如何一步一步的编译成<code>class</code>文件，到如何在内存中正确的使用的过程。</p>
+<h1 id="类加载的时机"><a href="#类加载的时机" class="headerlink" title="类加载的时机"></a>类加载的时机</h1><p><img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=592569707,1813340422&amp;fm=27&amp;gp=0.jpg" alt="这里写图片描述"><br>类从被加载到虚拟机内存开始，到卸载出内存为止，它的生命周期如上图。其中，验证、准备和解析3个部分统称为连接。</p>
+<p>加载、验证、准备、初始化和卸载这5个阶段的顺序是确定的，而解析则不一定，解析主要目的是将符号引用转换为直接引用，它某些情况可以在初始化以后才开始，这是为了支持<code>java</code>的运行时绑定。</p>
+<p>关于加载什么时候开始，<code>jvm</code>规范中并没有明确约束，由不同虚拟机自己把握，但对于初始化阶段，虚拟机规范严格规定有且只有5种情况必须对类进行初始化：</p>
+<ol>
+<li>遇到<code>new</code>、<code>getstaic</code>、<code>putstatic</code>或<code>invokestatic</code>这4条字节码指令时，如果类没有进行过初始化，则会触发初始化。</li>
+<li>使用<code>java.lang.reflect</code>包的方法对类进行反射调用的时候，如果类没有进行过初始化，则会先触发其初始化。</li>
+<li>当初始化一个类的时候，如果发现其父类还没进行过初始化，则需要触发其父类初始化。</li>
+<li>当虚拟机启动时，用户需要指定一个要执行的主类，虚拟机会先初始化这个主类。</li>
+<li>当使用jdk1.7动态语言支持时，如果一个<code>java.lang.invoke.MethodHandle</code>实例最后的解析结果 <code>REF_getStatic</code>、<code>REF_putStatic</code>、<code>REF_invokeStatic</code>的方法句柄，并且这个方法句柄所对应的类没有进行过初始化，则会先触发其初始化。</li>
+</ol>
+<h1 id="类加载的过程"><a href="#类加载的过程" class="headerlink" title="类加载的过程"></a>类加载的过程</h1><h2 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h2><p>加载阶段，虚拟机需要完成3件事：</p>
+<ol>
+<li>通过一个类的全限定名获取定义此类的二进制字节流。</li>
+<li>将这个字节流所代表的静态存储结构转换为方法区的运行时数据结构。</li>
+<li>在内存中生成一个代表这个类的<code>java.lang.Class</code>对象，作为方法区这个类的各种数据结构的访问入口。</li>
+</ol>
+<p>上面说获取二进制字节流，而没有明确的说明是<code>class</code>文件中的字节流，因为还有其它获取字节流的方式，例如从<code>jar</code>包中获取、从网络中获取、动态代理运行时生成等。</p>
+<p>加载阶段与连接阶段的部分内容是交叉进行的，如：一部分字节码文件格式验证动作。加载阶段尚未完成，连接阶段可能已经开始了。</p>
+<h2 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h2><p>验证是连接阶段的第一步，这一阶段的目的是为了<strong>确保<code>Class</code>文件的字节流中包含的信息符合虚拟机的要求，并且不会危害虚拟机自身的安全</strong>。验证阶段大致会完成以下4个阶段的校验动作：文件格式验证、元数据验证、字节码验证和符号引用验证。</p>
+<h3 id="1-文件格式验证"><a href="#1-文件格式验证" class="headerlink" title="1.文件格式验证"></a>1.文件格式验证</h3><p>这一阶段目的是验证二进制字节流是否符合<code>Class</code>文件格式的规范，并且能被当前版本的虚拟机处理，检测内容包括以下几点：</p>
+<ul>
+<li>是否以魔数（<code>0xCAFEBABY</code>）开头。</li>
+<li>主次版本号是否在当前虚拟机处理范围之内。</li>
+<li>常量池中的常量是否有不支持的常量类型。</li>
+<li>指向常量的各种索引值中是否有指向不存在的常量或不符合类型的常量。</li>
+<li><code>CONSTANT_Utf8_info</code> 型常量是否有不符合<code>UTF8</code>数据编码的数据。</li>
+<li><code>Class</code>文件中各个部分及文件本身是否有被删除的或附加的信息。</li>
+</ul>
+<p>这个阶段是基于二进制字节流进行的，只有通过了这个阶段的验证，字节流才会流入方法区中进行存储，后面3个阶段全是基于方法区的存储结构进行的，不会再直接操作字节流。</p>
+<h3 id="2-元数据验证"><a href="#2-元数据验证" class="headerlink" title="2.元数据验证"></a>2.元数据验证</h3><p>这一阶段主要对字节码的描述信息进行语义分析，以保证其描述信息符合java语言规范，这阶段的验证点可能包括以下几点：</p>
+<ul>
+<li>这个类是否有父类</li>
+<li>这个类的父类是否继承了不被允许继承的类(被final 修饰)</li>
+<li>如果这个类不是抽象类，是否实现了父类或接口中的方法</li>
+<li>类中的字段、方法是否与父类产生矛盾（覆盖父类的final字段值等）</li>
+</ul>
+<h3 id="3-字节码验证"><a href="#3-字节码验证" class="headerlink" title="3.字节码验证"></a>3.字节码验证</h3><p>这一阶段目的主要目的是确定程序语义是合法的、符合逻辑的。这个阶段主要对类的字节码进行校验分析，保证该类的方法不会在运行时做出危害虚拟机安全的事：</p>
+<ul>
+<li>保证任意时刻操作数栈的数据类型与指令代码序列都能配合工作，例如不会出险操作数栈上 <code>int</code> 类型的数据使用时按<code>long</code>类型加载进本地变量表中。</li>
+<li>保证跳转指令不会跳转到方法体以外的字节码指令上。</li>
+<li>保证方法体内的类型转化是有效的，可以把一个子类对象赋值给父类数据结构，这是安全的，而不能把父类赋值给子类甚至与它无关系的数据类型，这是危险和不合法的。</li>
+</ul>
+<h3 id="4-符号引用验证"><a href="#4-符号引用验证" class="headerlink" title="4.符号引用验证"></a>4.符号引用验证</h3><p>这一阶段用来将符号引用转换为直接引用的时候，这个<strong>转化将在解析阶段中发生</strong>，符号引用验证可以看做是类对自身以外（常量池中各种符号引用）的信息进行匹配性校验，通常需要校验以下内容：</p>
+<ul>
+<li>符号引用中能否根据字符串的权限定名找到对应的类。</li>
+<li>在指定类中是否存在符合方法的字段描述符以及简单名称描述的方法和字段。</li>
+<li>符号引用中的类、字段、方法的访问性是否可以被当前类访问。</li>
+</ul>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>准备阶段是正式为<strong>类变量分配内存并设置初始值的阶段</strong>，这些变量所使用的内存都将在方法区分配。实例变量会在对象实例化的时候跟对象一起在java堆中分配。这里的初始值指的是通常情况下的零值。假设一个类变量定义为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> a=<span class="number">123</span>;</span><br></pre></td></tr></table></figure>
+<p>那么变量<code>a</code>初始化的值是<code>0</code>而不是<code>123</code>。如果变量同时是<code>final</code>类型，那么准备阶段就会被赋值为<code>123</code>，不必等到初始化阶段再赋值。</p>
+<h2 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h2><p>解析阶段是<strong>将虚拟机常量池内的符号引用替换为直接引用的过程</strong>。解析动作主要针对类或接口、字段、类方法、接口方法、方法类型、方法句柄和调用点限定符7类符号进行。可能大家有疑问<code>Class</code>文件中哪有这么多内容，其实上面也说了，是针对常量池。不管是<code>Class</code>文件中的方法表还是字段表，不能直接表示的内容，基本都会直接或间接存在常量池中，因此解析过程就是<strong>针对常量池中的数据类型</strong>进行解析的。</p>
+<h3 id="1-类或接口的解析"><a href="#1-类或接口的解析" class="headerlink" title="1.类或接口的解析"></a>1.类或接口的解析</h3><p>要把一个从未解析过的符号引用N解析为一个类或接口的直接引用，虚拟机需要完成以下3个步骤：</p>
+<ol>
+<li>如果<code>C</code>不是一个数组类型，那么虚拟机会把代表<code>N</code>的权限定名传递给<code>D</code>的类加载器去加载这个类<code>C</code>。在加载的过程当中，由于元数据、字节码验证的操作，又可能触发其它类的加载动作，一旦出险任何异常，则解析宣告失败。</li>
+<li>如果<code>C</code>是一个数组类型，并且数组元素为对象，描述符类似“<code>[Ljava/lang/Integer</code>”的形式按照第一点的规则加载数组元素类型。如果<code>N</code>的描述符如前面所假设的形式，需要加载的类型就是<code>java.lang.Integer</code>，接着由虚拟机生成一个代表次数组维度和元素的数组对象。</li>
+<li>如果上面的步骤没有任何异常，那么<code>C</code>在虚拟机中实际上已经称为一个有效的类或接口了。解析之前还要进行符号验证，确认<code>D</code>是否具有对<code>C</code>的访问权限，如果不具备则会抛出异常。</li>
+</ol>
+<h3 id="2-字段解析"><a href="#2-字段解析" class="headerlink" title="2.字段解析"></a>2.字段解析</h3><p>对字段表内<code>class_index</code>项中索引的<code>CONSTANT_Class_info</code>符号引用进行解析，也就是字段所属的类或接口的符号引用，如果解析这个类或符号引用的过程中出现任何异常，都会导致字段符号引用解析的失败。如果解析成功，这个字段对应的类或接口用<code>C</code>表示，接下来沿着<code>A</code>和它的父类/父接口寻找是否有这个字段，如果有会进行权限验证，如果不具备权限则抛出异常。如果这个过程不出错，则会在找到符合字段的时候返回这个字段的直接饮用，查找结束。</p>
+<h3 id="3-类-静态-方法解析"><a href="#3-类-静态-方法解析" class="headerlink" title="3.类(静态)方法解析"></a>3.类(静态)方法解析</h3><p>类方法解析首先也要首先解析出类方法表<code>class_index</code>项中索引的方法所属的类或接口的符号引用，解析成功用<code>C</code>表示。</p>
+<ol>
+<li>类方法和接口方法符号引用的常量类型定义是分开的，如果在类方法表中索引类是个接口，直接抛出异常。</li>
+<li>如果通过了第一步，在类<code>C</code>中查找是否有简单名称和描述符都与目标匹配的方法，有则返回这个方法的直接引用，查找结束。</li>
+<li>否则在类的父类递归查找是否有这个方法，有则返回直接引用，查找结束。</li>
+<li>否则在类的接口列表和父接口递归查找，如果存在匹配的方法，说明类<code>C</code>是一个抽象类，查找结束，抛出异常。</li>
+<li>否则宣告查找失败，抛出异常。</li>
+</ol>
+<p>最后如果查找成功返回了直接引用，还要对这个方法进行权限验证，如果不具备权限，则会抛出异常。</p>
+<h3 id="接口方法解析"><a href="#接口方法解析" class="headerlink" title="接口方法解析"></a>接口方法解析</h3><p>接口方法需要先解析出接口方法表的<code>class_index</code> 项中索引的方法所属的类或接口的符号引用。</p>
+<ol>
+<li>如果发现<code>class_index</code> 中的索引<code>C</code>是个类而不是接口，直接抛出异常。</li>
+<li>否则在接口<code>C</code>中查找是否有描述符和名称都匹配的方法，有则返回方法的直接引用，查找结束。</li>
+<li>否则在其父接口中递归查找，匹配就返回方法的直接引用，查找结束。</li>
+<li>否则宣告方法查找失败。</li>
+</ol>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><p>类初始化是类加载过程的最后一步。前面的类加载过程中，除了加载阶段可以自定义类加载器干预之外，其余动作完全由虚拟机主导。到了初始化阶段，才真正开始执行<code>java</code>代码。</p>
+<p>我们知道，在前面的准备阶段，已经对类变量分配过内存并设置初始值。在初始化阶段，则是为类变量或其它资源设置程序中声明的值。注意这里仍然是<strong>类变量</strong>，不包括实例变量。或者明确的说，这一阶段，是执行static关键字修饰的变量或代码块。本质上，初始化是执行类构造器<br>&lt;<client>client&gt;方法的过程。</client></p>
+<blockquote>
+<p>&lt;<client>client&gt;方法是由编译器自动收集类中所有类变量的赋值动作和静态代码块中的语句合并产生的。编译器收集的顺序是有语句在资源文件中出险的顺序所决定的。</client></p>
+</blockquote>
+<p>因此平时可能会遇到这种问题：如下代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Client client = <span class="keyword">new</span> Client();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> a;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> b = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Client</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        a++;</span><br><span class="line">        b++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Client <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> client;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Client instance = Client.getInstance();</span><br><span class="line">        System.out.println(<span class="string">"a= "</span> + Client.a);</span><br><span class="line">        System.out.println(<span class="string">"b= "</span> + Client.b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a= 1</span><br><span class="line">b= 0</span><br></pre></td></tr></table></figure>
+<p>可能有人问为什么，其实把类加载的过程逻辑理清楚，也不是问题。我们知道在类加载的准备阶段会给类变量分配内存和赋初始值。在外部调用<code>Client.getInstance()</code>时，因为之前类没有被加载过，会引发类加载，到了准备阶段就会给类变量赋初始值。赋值顺序同一个类中是按声明的顺序，也就是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">client=<span class="keyword">null</span>；</span><br><span class="line">a=<span class="number">0</span>;</span><br><span class="line">b=<span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>然后解析完开始初始化，按程序声明的值给类变量赋值。首先执行clinet=new Client(),其实关键就是这里new的过程会调用构造函数，调用完后</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a=<span class="number">1</span>;</span><br><span class="line">b=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>接着继续初始化，a只是声明没有赋值，所以没有任何操作，b声明且赋值为0，所以初始化完成后</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a=<span class="number">1</span>;</span><br><span class="line">b=<span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+                    
+                    <!-- Tags Bottom -->
+                    
+                        <div class="tags-container-bottom">
+                            <i class="fa fa-tag pr3 text-main-color"></i><a class="fw3 ph1 dib" href="/tags/jvm/">#jvm</a> <a class="fw3 ph1 dib" href="/tags/类加载/">#类加载</a> <a class="fw3 ph1 dib" href="/tags/原理/">#原理</a>
+                        </div>
+                    
+
+                    <!-- Comments -->
+                    
+
+
+
+                </div>
+                <div class="fl w-100 w-30-l center fw3 lh-copy pl4-ns tl black-50">
+                    
+                    <hr class="dn-l mw4 black-50 mt5" />
+                    
+                    <!-- Widget 1: About -->
+                    <div class="mt5 mt0-l">
+    <article class="dt db-l mw8 mw8-m mw5-ns center ml0-l bg-white mv3">
+        <div class="dn dtc-m db-l v-mid tc pr4 pr0-l" style="min-width: 6rem;">
+            <img src="/image/head_image.jpg" class="mb4-l br-100 h3 w3 h4-l w4-l dib" title="Pan Hao">
+        </div>
+        <div class="dtc db-l v-mid lh-copy measure center f6 black-50 tj">
+            Panhao,毕业于南华大学，热衷于研究框架和Android底层原理及内核机制，目前就职于TT语音。Let's go and reading the fucking source code.
+        </div>
+    </article>
+</div>
+
+                    <hr class="dn-l mw4 black-50 mt5" />
+                    
+                    <!-- Widget 2: Categories -->
+                    
+                        <div class="mt5 tc tl-l">
+    <h3>Categories</h3>
+    
+        <p>
+            <a href="/categories/jvm/">jvm</a>
+        </p>
+    
+</div>
+
+
+                        <hr class="dn-l mw4 black-50 mt5" />
+                    
+
+                    <!-- Widget 3: Recent Posts -->
+                    <div class="mt5 tc tl-l">
+    <h3>Recent Posts</h3>
+    
+        <p>
+            <a href="/2018/06/28/Java的运行时数据区/">Java虚拟机的运行时数据区</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/28/JVM 类加载机制/">Jvm类加载机制</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/25/手写Android网络框架——CatHttp（二）/">手写Android网络框架——CatHttp（二）</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/25/手写Android网络框架——CatHttp（一）/">手写Android网络框架——CatHttp（一）</a>
+        </p>
+    
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Footer -->
+<div class="bg-1 ph2 ph5-ns pv5">
+        <div class="mv8">
+            <div class="center tc">
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://twitter.com/?lang=en" target="_blank">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://www.facebook.com/" target="_blank">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://dribbble.com/" target="_blank">
+                            <i class="fa fa-dribbble"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://github.com/klugjo/hexo-theme-anodyne" target="_blank">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://plus.google.com/" target="_blank">
+                            <i class="fa fa-google-plus"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://www.behance.net/" target="_blank">
+                            <i class="fa fa-behance"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://500px.com/" target="_blank">
+                            <i class="fa fa-500px"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="mailto:test@example.com" target="_blank">
+                            <i class="fa fa-envelope"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="/#" target="_blank">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </div>
+                
+            </div>
+            <div class="f6 f5-ns center tc white pt5 fw3">
+                @Panhao. 一个具有Geek精神的Android开发者 <a class="link dim white" href="https://github.com/pan-haos/">Panhaos github</a>
+            </div>
+        </div>
+    </div>
+
+<!-- After Footer -->
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>
