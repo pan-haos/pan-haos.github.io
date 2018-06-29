@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="日常技术分享">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Pan Hao">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Class类文件结构"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="日常技术分享" />
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="panhaos_blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    <meta name="twitter:card" content="summary" />
+    
+
+    <!-- Title -->
+    
+    <title>Class类文件结构 - panhaos_blog</title>
+
+    <!-- Tachyons Core CSS -->
+    <link rel="stylesheet" href="//unpkg.com/tachyons/css/tachyons.min.css">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Google Analytics -->
+    
+
+
+</head>
+
+
+<body>
+
+<!-- Main Content -->
+<!-- Banner -->
+<!-- Banner -->
+<div class="w-100 bg-1 ph5-ns ph3 text-light">
+    
+    <nav class="db dt-l w-100 mw8 center border-box pv3">
+        <a class="db dtc-l v-mid link dim w-100 w-25-l tc tl-l mb2 mb0-l white" href="/" title="panhaos_blog">
+            <img src="http://www.codeblocq.com/assets/projects/hexo-theme-anodyne/assets/anodyne.svg" class="dib h3" alt="panhaos_blog">
+        </a>
+        <div class="db dtc-l v-mid w-100 w-75-l tc tr-l">
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/" 
+                    title="主页">
+                    主页
+                </a>
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/archives" 
+                    title="档案">
+                    档案
+                </a>
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/" 
+                    title="关于">
+                    关于
+                </a>
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/" 
+                    title="联系">
+                    联系
+                </a>
+            
+        </div>
+    </nav>
+
+    <!-- Title -->
+    <div class="w-100 mw8 center vh-40 dt">
+        <div class="dtc v-mid white">
+            <h1 class="f1-l f2-m tc tc-m tl-ns">Class类文件结构</h1>
+            <p class="f4 fw3 pab-100px tc tc-m tl-ns">2018-06-28</p>
+        </div>
+    </div>
+
+    <!-- Icon -->
+    <div class="relative w-100 mw8 center white dn dn-m db-ns">
+        <i class="header-icon fa fa-file-text-o"></i>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="w-100 ph2 ph4-m ph5-l mv5 mv6-l">
+    <div class="content">
+        <div class="mw8 center">
+            <div class="cf">
+                <div class="fl w-100 w-70-l mw7 left fw3 lh-copy pr4-ns pr0-m post-content">
+                    <!-- Tags Vertical -->
+                    
+                        <div class="tags-container-vertical">
+                            <div class="tags-sub-container">
+                                <a class="fw3 ph1 dib" href="/tags/jvm/">#jvm</a> <a class="fw3 ph1 dib" href="/tags/class/">#class</a> <a class="fw3 ph1 dib" href="/tags/数据结构/">#数据结构</a>
+                            </div>
+                        </div>
+                    
+
+                    <!-- Main Post Content -->
+                    <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>要想深入的了解<code>jvm</code>，了解<code>java</code>编译后的类文件结构和字节码是很有必要的。虽然这部分内容（主要是<code>class</code>文件的数据结构）比较枯燥，但是这也是最基础的内容，是我们深入理解<code>jvm</code>的内存、类的加载等内容的基石。</p>
+<h2 id="Class类文件结构"><a href="#Class类文件结构" class="headerlink" title="Class类文件结构"></a>Class类文件结构</h2><p><code>class</code>文件是一组以8位字节为基础的二进制流，各个数据项目按照顺序排列在<code>Class</code>文件中，中间没有任何分隔符。因此整个<code>class</code>文件中存储的内容几乎全是程序运行时的必要数据。当遇到需要占用8位以上字节空间的数据项时，会按照高位在前的方式分割成若干个8位字节存储。</p>
+<p>class文件格式如下：<br>| 类型 | 名称 | 数量 |<br>| —- |:————-:| ——-|<br>|u4     |magic     |1 |<br>|u2     |minor_version |1|<br>|u2     |major_version|     1|<br>|u2     |constant_pool_count|     1|<br>|cp_info | constant_pool     | constant_pool_count - 1|<br>|u2     |access_flags     |1|<br>|u2     |this_class     |1|<br>|u2     |super_class     |1|<br>|u2     |interfaces_count |    1|<br>|u2     |interfaces     |interfaces_count|<br>|u2     |fields_count     |1|<br>|field_info     |fields     |fields_count|<br>|u2     |methods_count     |1|<br>|method_info     |methods     |methods_count|<br>|u2     |attribute_count     |1|<br>|attribute_info|     attributes     |attributes_count|</p>
+<p>class文件只有两种伪数据结构：无符号数和表。可以看到每个表的前面都会有一<code>XX count</code>的，这是一个前置容量计数器，用来记录对应类型的数量。</p>
+<h2 id="数据项"><a href="#数据项" class="headerlink" title="数据项"></a>数据项</h2><p><code>class</code>文件的数据项很多，这里不展开一个个地讲，主要介绍一些关键的。</p>
+<blockquote>
+<ol>
+<li>常量池</li>
+<li>字段表</li>
+<li>方法表</li>
+<li>属性表</li>
+</ol>
+</blockquote>
+<h2 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h2><p>常量池相信很多人都听过，这里的常量池指的是<code>class</code>文件中的常量池。</p>
+<p>常量池中主要存储两类类型：字面量和符号引用。</p>
+<p><strong>字面量</strong>：字面量指的是java语言层的常亮，如<code>String s=&quot;123&quot;</code>,那么这个<code>123</code>就是常量。对于基本类型的封装类型，范围在<code>-127</code>-<code>128</code>之间的，也是常量。当然了，声明为<code>final</code>的值，在整个程序运行过程中不可变，自然也是常量了。</p>
+<p><strong>符号引用</strong>：<code>java</code>中的符号引用主要包括以下3类常量：</p>
+<ul>
+<li>类和接口的全限定名</li>
+<li>字段的名称和描述符</li>
+<li>方法的名称和描述符</li>
+</ul>
+<blockquote>
+<p><code>java</code>是在虚拟机加载<code>class</code>文件的时候进行动态连接的，class文件中不会保存各方法字段的最终内存布局信息，因此这些字段、方法的符号引用不经过虚拟机运行时转换的话，无法得到真正的内存地址，也就无法被jvm使用。当虚拟机运行时，需要从常量池获得对应的符号引用，再在类创建或运行时解析，翻译到具体的内存地址中。</p>
+</blockquote>
+<p>常量池中的每一项常量都是一个表，这些表有一个共同的特点，每个表的第一位都是一个u1类型的标志位，取值如下：</p>
+<table>
+<thead>
+<tr>
+<th>常量池中数据项类型</th>
+<th style="text-align:center">类型标志</th>
+<th style="text-align:left">类型描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONSTANT_Utf8</td>
+<td style="text-align:center">1</td>
+<td style="text-align:left">UTF-8编码的Unicode字符串</td>
+</tr>
+<tr>
+<td>CONSTANT_Integer</td>
+<td style="text-align:center">3</td>
+<td style="text-align:left">int类型字面值</td>
+</tr>
+<tr>
+<td>CONSTANT_Float</td>
+<td style="text-align:center">4</td>
+<td style="text-align:left">float类型字面值</td>
+</tr>
+<tr>
+<td>CONSTANT_Long</td>
+<td style="text-align:center">5</td>
+<td style="text-align:left">long类型字面值</td>
+</tr>
+<tr>
+<td>CONSTANT_Double</td>
+<td style="text-align:center">6</td>
+<td style="text-align:left">double类型字面值</td>
+</tr>
+<tr>
+<td>CONSTANT_Class</td>
+<td style="text-align:center">7</td>
+<td style="text-align:left">对一个类或接口的符号引用</td>
+</tr>
+<tr>
+<td>CONSTANT_String</td>
+<td style="text-align:center">8</td>
+<td style="text-align:left">String类型字面值</td>
+</tr>
+<tr>
+<td>CONSTANT_Fieldref</td>
+<td style="text-align:center">9</td>
+<td style="text-align:left">对一个字段的符号引用</td>
+</tr>
+<tr>
+<td>CONSTANT_Methodref</td>
+<td style="text-align:center">10</td>
+<td style="text-align:left">对一个类中声明的方法的符号引用</td>
+</tr>
+<tr>
+<td>CONSTANT_InterfaceMethodref</td>
+<td style="text-align:center">11</td>
+<td style="text-align:left">对一个接口中声明的方法的符号引用</td>
+</tr>
+<tr>
+<td>CONSTANT_NameAndType</td>
+<td style="text-align:center">12</td>
+<td style="text-align:left">对一个字段或方法的部分符号引用</td>
+</tr>
+</tbody>
+</table>
+<h2 id="访问标志"><a href="#访问标志" class="headerlink" title="访问标志"></a>访问标志</h2><p>访问标志用来识别类或接口的访问信息，比如这个<code>Class</code>是类还是接口，是<code>public</code>还是<code>private</code>，是否被声明为<code>final</code>等。具体标志位及含义如下：</p>
+<table>
+<thead>
+<tr>
+<th>标志名称　</th>
+<th style="text-align:center">标志值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACC_PUBLIC</td>
+<td style="text-align:center">0x00 01</td>
+<td>是否为Public类型</td>
+</tr>
+<tr>
+<td>ACC_FINAL</td>
+<td style="text-align:center">0x00 10</td>
+<td>是否被声明为final，只有类可以设置</td>
+</tr>
+<tr>
+<td>ACC_SUPER</td>
+<td style="text-align:center">0x00 20</td>
+<td>是否允许使用invokespecial字节码指令的新语义．</td>
+</tr>
+<tr>
+<td>ACC_INTERFACE</td>
+<td style="text-align:center">0x02 00</td>
+<td>标志这是一个接口</td>
+</tr>
+<tr>
+<td>ACC_ABSTRACT</td>
+<td style="text-align:center">0x04 00</td>
+<td>是否为abstract类型，对于接口或者抽象类来说，次标志值为真，其他类型为假</td>
+</tr>
+<tr>
+<td>ACC_SYNTHETIC</td>
+<td style="text-align:center">0x10 00</td>
+<td>标志这个类并非由用户代码产生</td>
+</tr>
+<tr>
+<td>ACC_ANNOTATION</td>
+<td style="text-align:center">0x20 00</td>
+<td>标志这是一个注解</td>
+</tr>
+<tr>
+<td>ACC_ENUM</td>
+<td style="text-align:center">０x40 00</td>
+<td>标志这是一个枚举</td>
+</tr>
+</tbody>
+</table>
+<h2 id="类索引、父类索引与接口索引集合"><a href="#类索引、父类索引与接口索引集合" class="headerlink" title="类索引、父类索引与接口索引集合"></a>类索引、父类索引与接口索引集合</h2><p>我们都知道，<code>java</code>中是单继承多实现的，除了<code>Object</code>类之外每个类都有父类，因此它们是唯一的，而一个类可以实现多个接口，因此接口是不唯一的，用集合表示。类索引和父类索引都是用一个<code>u2</code>类型数据来表示的，而接口索引集合则是一组<code>u2</code>类型的数据表示。</p>
+<p>类索引、父类索引和接口索引集合都按顺序排在访问标志的后面。类索引和父类索引<code>u2</code>类型的索引各指向一个类型为<code>CONSTANT_Class_info</code>的类描述符常量，用来描述具体的类。对于接口索引第一项<code>u2</code>则为接口索引计数器，用来记录实现了多少个接口，如果为0则后面不再占用任何字节。</p>
+<h2 id="字段表集合"><a href="#字段表集合" class="headerlink" title="字段表集合"></a>字段表集合</h2><p><strong>字段表用于声明类或接口中声明的变量。字段包括类变量和实例变量</strong>。在<code>java</code>中一个字段是如何描述的，举个的例子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public static final  String num=&quot;13234&quot;;</span><br></pre></td></tr></table></figure>
+<p>可以看出来，首先是访问范围，是公有的还是私有的，或者受保护的，这个信息决定了字段是否堆特定范围的类可见。</p>
+<p>其次是一些关键字修饰的描述信息，是实例变量还是类变量，是否可变，并发可见性，是否可被序列化等，这些关键字包括<code>static</code>、<code>final</code> 、<code>volatile</code>、<code>transient</code>等。</p>
+<p>在后面便是字段的数据类型（基本数据类型、数组、对象）和名称。</p>
+<p>上述的这些修饰符都是用布尔值来描述的，而数据类型和名称都是不确定的，通常引用<code>常量池</code>的常量来描述。</p>
+<p>字段表结构如下：<br>|类型　　　　     |名称     |数量|<br>| ————- |:————-:| —–|<br>|ｕ2     |access_flags     |1|<br>|ｕ2     |name_index     |1|<br>|ｕ2     |descriptor_index     |1|<br>|ｕ2     |attributes_count     |1|<br>|attribute_info     |attributes     |attributes_count|</p>
+<p>字段修饰符在<code>access_flag</code>下，<code>access_flag</code>的内容如下：</p>
+<table>
+<thead>
+<tr>
+<th>标志名称</th>
+<th style="text-align:center">标志值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACC_PUBLIC</td>
+<td style="text-align:center">0x0001</td>
+<td>字段是否为public</td>
+</tr>
+<tr>
+<td>ACC_PRIVATE</td>
+<td style="text-align:center">0x0002</td>
+<td>字段是否为private</td>
+</tr>
+<tr>
+<td>ACC_PROTECTED</td>
+<td style="text-align:center">0x0004</td>
+<td>字段是否为protected</td>
+</tr>
+<tr>
+<td>ACC_STATIC</td>
+<td style="text-align:center">0x0008</td>
+<td>字段是否为static</td>
+</tr>
+<tr>
+<td>ACC_FINAL</td>
+<td style="text-align:center">0x0010</td>
+<td>字段是否为final</td>
+</tr>
+<tr>
+<td>ACC_VOLATILE</td>
+<td style="text-align:center">0x0040</td>
+<td>字段是否为volatile</td>
+</tr>
+<tr>
+<td>ACC_TRANSTENT</td>
+<td style="text-align:center">0x0080</td>
+<td>字段是否为transient</td>
+</tr>
+<tr>
+<td>ACC_SYNCHETIC</td>
+<td style="text-align:center">0x1000</td>
+<td>字段是否为由编译器自动产生</td>
+</tr>
+<tr>
+<td>ACC_ENUM</td>
+<td style="text-align:center">0x4000</td>
+<td>字段是否为enum</td>
+</tr>
+</tbody>
+</table>
+<p><code>name_index</code>表示的是字段的简单名称，像上面的简单名称就是<code>num</code>，<code>descriptor_index</code> 表示字段和方法的描述符。</p>
+<p>描述符号的作用是用来描述字段的数据类型、方法的参数列表（数量、类型及顺序）和返回值。根据描述符的规则：基本数据类型以及代表无返回值的<code>void</code>类型都用一个大写的字符来表示，而对象类型则用字符<code>L</code>加对象的全限定名来描述，详情如下：<br>|标志符     |含义|<br>| ————- | —–|<br>|B     |基本数据类型byte|<br>|C     |基本数据类型char|<br>|D     |基本数据类型double|<br>|F     |基本数据类型float|<br>|I     |基本数据类型int|<br>|J     |基本数据类型long|<br>|S     |基本数据类型short|<br>|Z     |基本数据类型boolean|<br>|V     |基本数据类型void|<br>|L     |对象类型|</p>
+<p>对于数组类型，每一个维度用一个前置的“[”字符来描述，如定义个int[][]类型的二维数组，记录为：”[[I”。</p>
+<p>用描述符来描述方法时，按照先参数列表后返回值的顺序描述。参数裂变按照参数顺序放在“（）”内，如方法<code>void login()</code>描述符为<code>()V</code>，方法<code>java.lang.String toString()</code>的描述符为“<code>()Ljava.lang.String</code>”。</p>
+<h2 id="方法表集合"><a href="#方法表集合" class="headerlink" title="方法表集合"></a>方法表集合</h2><p><code>Class</code>文件存储格式中对方法和字段的描述完全一致，方法表的字段结构和字段表一样，包括访问标志、名称索引、描述符索引、属性表集合几项。这些数据的含义非常类似，在访问标志和属性表集合有所区别。<br>|类型　　　　     |名称     |数量|<br>| ————- |:————-:| —–|<br>|ｕ2     |access_flags     |1|<br>|ｕ2     |name_index     |1|<br>|ｕ2     |descriptor_index     |1|<br>|ｕ2     |attributes_count     |1|<br>|attribute_info     |attributes     |attributes_count|<br><code>voliate</code>和<code>transient</code>不能修饰方法，所以访问标志没有了<code>ACC_VOLATILE</code>标志和<code>ACC_TRANSIENT</code>标志。同样，一些方法的关键字如：<code>synchronized</code>、<code>native</code>、<code>strictfp</code>、<code>abstract</code>等可以修饰方法，其标志位取值如下：</p>
+<table>
+<thead>
+<tr>
+<th>标志名称</th>
+<th style="text-align:center">标志值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACC_PUBLIC</td>
+<td style="text-align:center">0x00 01</td>
+<td>方法是否为public</td>
+</tr>
+<tr>
+<td>ACC_PRIVATE</td>
+<td style="text-align:center">0x00 02</td>
+<td>方法是否为private</td>
+</tr>
+<tr>
+<td>ACC_PROTECTED</td>
+<td style="text-align:center">0x00 04</td>
+<td>方法是否为protected</td>
+</tr>
+<tr>
+<td>ACC_STATIC</td>
+<td style="text-align:center">0x00 08</td>
+<td>方法是否为static</td>
+</tr>
+<tr>
+<td>ACC_FINAL</td>
+<td style="text-align:center">0x00 10</td>
+<td>方法是否为final</td>
+</tr>
+<tr>
+<td>ACC_SYHCHRONRIZED</td>
+<td style="text-align:center">0x00 20</td>
+<td>方法是否为synchronized</td>
+</tr>
+<tr>
+<td>ACC_BRIDGE</td>
+<td style="text-align:center">0x00 40</td>
+<td>方法是否是有编译器产生的方法</td>
+</tr>
+<tr>
+<td>ACC_VARARGS</td>
+<td style="text-align:center">0x00 80</td>
+<td>方法是否接受参数</td>
+</tr>
+<tr>
+<td>ACC_NATIVE</td>
+<td style="text-align:center">0x01 00</td>
+<td>方法是否为native</td>
+</tr>
+<tr>
+<td>ACC_ABSTRACT</td>
+<td style="text-align:center">0x04 00</td>
+<td>方法是否为abstract</td>
+</tr>
+<tr>
+<td>ACC_STRICTFP</td>
+<td style="text-align:center">0x08 00</td>
+<td>方法是否为strictfp</td>
+</tr>
+<tr>
+<td>ACC_SYNTHETIC</td>
+<td style="text-align:center">0x10 00</td>
+<td>方法是否是有编译器自动产生的</td>
+</tr>
+</tbody>
+</table>
+<h3 id="方法里的代码"><a href="#方法里的代码" class="headerlink" title="方法里的代码"></a>方法里的代码</h3><p>方法的定义可以通过访问标志、名称和描述符索引来表述清除，那么方法中的代码又在哪里呢？我们之前提到了属性表集合，方法里的<code>java</code>代码经过编译器编译成字节码指令后，存放在方法的属性表集合里一个名为<code>Code</code>的属性里。</p>
+<h2 id="属性表集合"><a href="#属性表集合" class="headerlink" title="属性表集合"></a>属性表集合</h2><p>我们从上面不止一次的看到了属性表集合，<strong>不管是<code>Class</code>文件、字段表还是方法表中，都有属性表集合（<code>attribute_info</code>）这一项，用于描述某些特定场景的专有信息。</strong></p>
+<p>与<code>class</code>文件其它数据项目严格要求顺序长度不同，属性表集合限制相对比较宽松，不要求各个属性表具有严格顺序，只要不与已有属性名重复，任何人实现的编译器均可向属性表写入自己的属性，<code>jvm</code>运行时会自动忽略掉不认识的属性。</p>
+<p><code>java7</code>中定义的属性如下表：</p>
+<table>
+<thead>
+<tr>
+<th>属性名称</th>
+<th style="text-align:center">使用位置</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code</td>
+<td style="text-align:center">方法表</td>
+<td>Java代码编译成的字节码指令</td>
+</tr>
+<tr>
+<td>ConstantValue</td>
+<td style="text-align:center">字段表</td>
+<td>final关键字定义的常量池</td>
+</tr>
+<tr>
+<td>Deprecated</td>
+<td style="text-align:center">类，方法，字段表</td>
+<td>被声明为deprecated的方法和字段</td>
+</tr>
+<tr>
+<td>Exceptions</td>
+<td style="text-align:center">方法表</td>
+<td>方法抛出的异常</td>
+</tr>
+<tr>
+<td>EnclosingMethod</td>
+<td style="text-align:center">类文件</td>
+<td>仅当一个类为局部类或者匿名类是才能拥有这个属性，这个属性用于标识这个类所在的外围方法</td>
+</tr>
+<tr>
+<td>InnerClass</td>
+<td style="text-align:center">类文件</td>
+<td>内部类列表</td>
+</tr>
+<tr>
+<td>LineNumberTable</td>
+<td style="text-align:center">Code属性</td>
+<td>Java源码的行号与字节码指令的对应关系</td>
+</tr>
+<tr>
+<td>LocalVariableTable</td>
+<td style="text-align:center">Code属性</td>
+<td>方法的局部便狼描述</td>
+</tr>
+<tr>
+<td>StackMapTable</td>
+<td style="text-align:center">Code属性</td>
+<td>JDK1.6中新增的属性，供新的类型检查检验器检查和处理目标方法的局部变量和操作数有所需要的类是否匹配</td>
+</tr>
+<tr>
+<td>Signature</td>
+<td style="text-align:center">类，方法表，字段表</td>
+<td>用于支持泛型情况下的方法签名</td>
+</tr>
+<tr>
+<td>SourceFile</td>
+<td style="text-align:center">类文件</td>
+<td>记录源文件名称</td>
+</tr>
+<tr>
+<td>SourceDebugExtension</td>
+<td style="text-align:center">类文件</td>
+<td>用于存储额外的调试信息</td>
+</tr>
+<tr>
+<td>Synthetic</td>
+<td style="text-align:center">类，方法表，字段表</td>
+<td>标志方法或字段为编译器自动生成的</td>
+</tr>
+<tr>
+<td>LocalVariableTypeTable</td>
+<td style="text-align:center">类</td>
+<td>使用特征签名代替描述符，是为了引入泛型语法之后能描述泛型参数化类型而添加</td>
+</tr>
+<tr>
+<td>RuntimeVisibleAnnotations</td>
+<td style="text-align:center">类，方法表，字段表</td>
+<td>为动态注解提供支持</td>
+</tr>
+<tr>
+<td>RuntimeInvisibleAnnotations</td>
+<td style="text-align:center">表，方法表，字段表</td>
+<td>用于指明哪些注解是运行时不可见的</td>
+</tr>
+<tr>
+<td>RuntimeVisibleParameterAnnotation</td>
+<td style="text-align:center">方法表</td>
+<td>作用与RuntimeVisibleAnnotations属性类似，只不过作用对象为方法</td>
+</tr>
+<tr>
+<td>RuntimeInvisibleParameterAnnotation</td>
+<td style="text-align:center">方法表</td>
+<td>作用与RuntimeInvisibleAnnotations属性类似，作用对象哪个为方法参数</td>
+</tr>
+<tr>
+<td>AnnotationDefault</td>
+<td style="text-align:center">方法表</td>
+<td>用于记录注解类元素的默认值</td>
+</tr>
+<tr>
+<td>BootstrapMethods</td>
+<td style="text-align:center">类文件</td>
+<td>用于保存invokeddynamic指令引用的引导方式限定符</td>
+</tr>
+</tbody>
+</table>
+
+                    
+                    <!-- Tags Bottom -->
+                    
+                        <div class="tags-container-bottom">
+                            <i class="fa fa-tag pr3 text-main-color"></i><a class="fw3 ph1 dib" href="/tags/jvm/">#jvm</a> <a class="fw3 ph1 dib" href="/tags/class/">#class</a> <a class="fw3 ph1 dib" href="/tags/数据结构/">#数据结构</a>
+                        </div>
+                    
+
+                    <!-- Comments -->
+                    
+
+
+
+                </div>
+                <div class="fl w-100 w-30-l center fw3 lh-copy pl4-ns tl black-50">
+                    
+                    <hr class="dn-l mw4 black-50 mt5" />
+                    
+                    <!-- Widget 1: About -->
+                    <div class="mt5 mt0-l">
+    <article class="dt db-l mw8 mw8-m mw5-ns center ml0-l bg-white mv3">
+        <div class="dn dtc-m db-l v-mid tc pr4 pr0-l" style="min-width: 6rem;">
+            <img src="/image/head_image.jpg" class="mb4-l br-100 h3 w3 h4-l w4-l dib" title="Pan Hao">
+        </div>
+        <div class="dtc db-l v-mid lh-copy measure center f6 black-50 tj">
+            Panhao,毕业于南华大学，热衷于研究框架和Android底层原理及内核机制，目前就职于TT语音。Let's go and reading the fucking source code.
+        </div>
+    </article>
+</div>
+
+                    <hr class="dn-l mw4 black-50 mt5" />
+                    
+                    <!-- Widget 2: Categories -->
+                    
+
+                    <!-- Widget 3: Recent Posts -->
+                    <div class="mt5 tc tl-l">
+    <h3>Recent Posts</h3>
+    
+        <p>
+            <a href="/2018/06/29/Ubuntu 上使用hexo+github打造个人blog/">Ubuntu下使用hexo+github打造个人blog</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/28/JAVA Class类文件结构/">Class类文件结构</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/28/Java的运行时数据区/">Java虚拟机的运行时数据区</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/28/JVM 类加载机制/">Jvm类加载机制</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/25/手写Android网络框架——CatHttp（二）/">手写Android网络框架——CatHttp（二）</a>
+        </p>
+    
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Footer -->
+<div class="bg-1 ph2 ph5-ns pv5">
+        <div class="mv8">
+            <div class="center tc">
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://twitter.com/?lang=en" target="_blank">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://www.facebook.com/" target="_blank">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://dribbble.com/" target="_blank">
+                            <i class="fa fa-dribbble"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://github.com/klugjo/hexo-theme-anodyne" target="_blank">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://plus.google.com/" target="_blank">
+                            <i class="fa fa-google-plus"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://www.behance.net/" target="_blank">
+                            <i class="fa fa-behance"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://500px.com/" target="_blank">
+                            <i class="fa fa-500px"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="mailto:test@example.com" target="_blank">
+                            <i class="fa fa-envelope"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="/#" target="_blank">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </div>
+                
+            </div>
+            <div class="f6 f5-ns center tc white pt5 fw3">
+                @Panhao. 一个具有Geek精神的Android开发者 <a class="link dim white" href="https://github.com/pan-haos/">Panhaos github</a>
+            </div>
+        </div>
+    </div>
+
+<!-- After Footer -->
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

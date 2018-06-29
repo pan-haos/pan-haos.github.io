@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="日常技术分享">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Pan Hao">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Ubuntu下使用hexo+github打造个人blog"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="日常技术分享" />
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="panhaos_blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    <meta name="twitter:card" content="summary" />
+    
+
+    <!-- Title -->
+    
+    <title>Ubuntu下使用hexo+github打造个人blog - panhaos_blog</title>
+
+    <!-- Tachyons Core CSS -->
+    <link rel="stylesheet" href="//unpkg.com/tachyons/css/tachyons.min.css">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Google Analytics -->
+    
+
+
+</head>
+
+
+<body>
+
+<!-- Main Content -->
+<!-- Banner -->
+<!-- Banner -->
+<div class="w-100 bg-1 ph5-ns ph3 text-light">
+    
+    <nav class="db dt-l w-100 mw8 center border-box pv3">
+        <a class="db dtc-l v-mid link dim w-100 w-25-l tc tl-l mb2 mb0-l white" href="/" title="panhaos_blog">
+            <img src="http://www.codeblocq.com/assets/projects/hexo-theme-anodyne/assets/anodyne.svg" class="dib h3" alt="panhaos_blog">
+        </a>
+        <div class="db dtc-l v-mid w-100 w-75-l tc tr-l">
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/" 
+                    title="主页">
+                    主页
+                </a>
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/archives" 
+                    title="档案">
+                    档案
+                </a>
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/" 
+                    title="关于">
+                    关于
+                </a>
+            
+                <a class="link dim f6 f5-l dib mr3 mr4-l white" 
+                    href="/" 
+                    title="联系">
+                    联系
+                </a>
+            
+        </div>
+    </nav>
+
+    <!-- Title -->
+    <div class="w-100 mw8 center vh-40 dt">
+        <div class="dtc v-mid white">
+            <h1 class="f1-l f2-m tc tc-m tl-ns">Ubuntu下使用hexo+github打造个人blog</h1>
+            <p class="f4 fw3 pab-100px tc tc-m tl-ns">2018-06-29</p>
+        </div>
+    </div>
+
+    <!-- Icon -->
+    <div class="relative w-100 mw8 center white dn dn-m db-ns">
+        <i class="header-icon fa fa-file-text-o"></i>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="w-100 ph2 ph4-m ph5-l mv5 mv6-l">
+    <div class="content">
+        <div class="mw8 center">
+            <div class="cf">
+                <div class="fl w-100 w-70-l mw7 left fw3 lh-copy pr4-ns pr0-m post-content">
+                    <!-- Tags Vertical -->
+                    
+                        <div class="tags-container-vertical">
+                            <div class="tags-sub-container">
+                                <a class="fw3 ph1 dib" href="/tags/工具/">#工具</a> <a class="fw3 ph1 dib" href="/tags/Hexo/">#Hexo</a>
+                            </div>
+                        </div>
+                    
+
+                    <!-- Main Post Content -->
+                    <p>最近一段时间想要搭建个人的<code>blog</code>，然后好好写博客。在网上大致看了下，一致的推荐<code>hexo</code>来搭建个人<code>blog</code>，而且可以通过<code>github</code>挂载在公网上去，由于个人使用的<code>Ubuntu 16.04</code>，通过命令行操作各种环境比较方便，因此就使用<code>Ubuntu</code>+<code>Hexo</code>+<code>Github</code>开启了我的私博搭建，博客的地址在 <a href="pan-haos.github.io">我的博客</a>。</p>
+<h2 id="清除hexo-npm和nodejs"><a href="#清除hexo-npm和nodejs" class="headerlink" title="清除hexo,npm和nodejs"></a>清除hexo,npm和nodejs</h2><p>相信很多人也各种<code>google</code>百度了各种方案，然而搭建过程中还是各种坑，其实最后就几个命令配置好了就没问题，结果却一直崩在中间的心碎历程相信看到这里的你或多或少的经历过。所以如果安装了以上环境并且也没有配置好你的<code>hexo</code>的话，先按下面的步骤操作吧。</p>
+<h3 id="移除hexo"><a href="#移除hexo" class="headerlink" title="移除hexo"></a>移除hexo</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/bin</span><br><span class="line">npm uninstall hexo -g</span><br></pre></td></tr></table></figure>
+<p>这里不要纠结你安装的是<code>hexo</code>还是<code>hexo-cli</code>，按照上面的命令操作都是可以成功移除掉你<code>hexo</code>的环境的。</p>
+<h3 id="移除node和npm"><a href="#移除node和npm" class="headerlink" title="移除node和npm"></a>移除node和npm</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove node</span><br><span class="line">sudo apt remove nodejs</span><br><span class="line">sudo apt remove npm</span><br></pre></td></tr></table></figure>
+<p>这里不管有没有三个命令敲上去就是了，如果没有包的话顶多提示你没有，也不会有什么问题。</p>
+<h2 id="安装nvm"><a href="#安装nvm" class="headerlink" title="安装nvm"></a>安装nvm</h2><p>这里的<code>nvm</code>实际上是<code>node</code>的包版本控制工具，在这里你可以找到各种你想要的版本，这里我们想要成功搭建肯定后面要安装稳定版的<code>node</code>了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> NVM_DIR=<span class="string">"<span class="variable">$HOME</span>/.nvm"</span> &amp;&amp; (</span><br><span class="line">  git <span class="built_in">clone</span> https://github.com/creationix/nvm.git <span class="string">"<span class="variable">$NVM_DIR</span>"</span></span><br><span class="line">  <span class="built_in">cd</span> <span class="string">"<span class="variable">$NVM_DIR</span>"</span></span><br><span class="line">  git checkout `git describe --abbrev=0 --tags --match <span class="string">"v[0-9]*"</span> origin`</span><br><span class="line">) &amp;&amp; . <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span></span><br></pre></td></tr></table></figure>
+<h3 id="配置开机自启"><a href="#配置开机自启" class="headerlink" title="配置开机自启"></a>配置开机自启</h3><p>在你的<code>~/.bashrc</code>,<code>~/.profile</code>,或者<code>~/.zshrc</code>中加入如下配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export NVM_DIR=&quot;$HOME/.nvm&quot;</span><br><span class="line">[ -s &quot;$NVM_DIR/nvm.sh&quot; ] &amp;&amp; . &quot;$NVM_DIR/nvm.sh&quot;</span><br></pre></td></tr></table></figure>
+<h2 id="使用nvm安装node和npm"><a href="#使用nvm安装node和npm" class="headerlink" title="使用nvm安装node和npm"></a>使用nvm安装node和npm</h2><p>如果执行完上面的命令都没有问题，这里就应该要使用<code>nvm</code>来安装<code>node</code>和<code>npm</code>了，首先先检查远程仓库的版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm ls-remote</span><br></pre></td></tr></table></figure>
+<p>如果网不好的情况下这一步骤可能会失败，如果失败再多试几次，或者找个网好的地方就能更下来了，我之前网络情况不太好大概执行了4/5次才刷出来。</p>
+<h3 id="安装稳定版"><a href="#安装稳定版" class="headerlink" title="安装稳定版"></a>安装稳定版</h3><p>如果上面那一步没问题的话，这里就开始安装<code>node</code>的稳定版了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm install stable</span><br></pre></td></tr></table></figure>
+<h3 id="启用安装好的版本"><a href="#启用安装好的版本" class="headerlink" title="启用安装好的版本"></a>启用安装好的版本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm use node</span><br></pre></td></tr></table></figure>
+<h3 id="设置为默认版本"><a href="#设置为默认版本" class="headerlink" title="设置为默认版本"></a>设置为默认版本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvl <span class="built_in">alias</span> default node</span><br></pre></td></tr></table></figure>
+<h2 id="安装hexo"><a href="#安装hexo" class="headerlink" title="安装hexo"></a>安装hexo</h2><p>如果<code>nvm</code>安装完成且成功配置好稳定版以后，就可以安装<code>hexo</code>了，安装<code>hexo</code>的过程其实和大家之前搜的没什么不同，之前安装失败的主要问题，要么是版本不匹配，要么是版本过低，在<code>github</code>也搜索过作者回答大致是低一点的版本是会有<code>bug</code>，不过高版本已经修复了。这边还是再重复一遍吧。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir blog</span><br><span class="line">hexo init blog </span><br><span class="line"><span class="built_in">cd</span> blog         </span><br><span class="line">npm install </span><br><span class="line">npm update -g</span><br></pre></td></tr></table></figure>
+<p>这边执行没问题的话<code>hexo</code>应该就是可以使用的了。在<code>blog</code>目录下输入下面命令，如果命令行结果如下则安装成功了。此时你可以进入浏览器输入<code>http://localhost:4000</code>查看你的<code>blog</code>，也可以直接<code>crtl</code>+鼠标点击命令行<code>url</code>进入该页面。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo g <span class="comment"># 生成静态界面</span></span><br><span class="line">hexo s <span class="comment"># 开启本地服务</span></span><br></pre></td></tr></table></figure></p>
+<p><img src="https://img-blog.csdn.net/2018062918095219?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3Bhbjg2MTE5MDA3OQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<h2 id="安装git"><a href="#安装git" class="headerlink" title="安装git"></a>安装git</h2><p>安装并配置好了<code>hexo</code>后，本地的<code>blog</code>就可以使用了。但是我们写<code>blog</code>不可能只是给自己看，所以我们要把我们的<code>hexo</code>挂载在<code>github</code>上，如果本地没有<code>git</code>环境的话先安装<code>git</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install git</span><br></pre></td></tr></table></figure>
+<h3 id="配置本机全局git环境"><a href="#配置本机全局git环境" class="headerlink" title="配置本机全局git环境"></a>配置本机全局git环境</h3><p>现在假设我的邮箱是<a href="mailto:`zhangsan@gmail.com" target="_blank" rel="noopener">`zhangsan@gmail.com</a><code>，</code>github<code>的名字是</code>zhangsan`</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config –global user.email “zhangsan@gmail.com” </span><br><span class="line">git config –global user.name “zhangsan”</span><br></pre></td></tr></table></figure>
+<h3 id="生成ssh秘钥"><a href="#生成ssh秘钥" class="headerlink" title="生成ssh秘钥"></a>生成ssh秘钥</h3><p>先确定你之前有没有生成过<code>ssh</code>的<code>key</code><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">less ~/.ssh/id_rsa.pub</span><br></pre></td></tr></table></figure></p>
+<p>如果有的话会出现一串秘钥，则不需要重新生成秘钥，没有的话执行下面命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -C example@163.com</span><br></pre></td></tr></table></figure></p>
+<p>会提示让你输入文件夹的名字来存放<code>ssh</code>秘钥，并且让你确认一个验证的密码，按要求操作就好了。然后可以手动去你生成<code>ssh</code>秘钥的文件查看你的公钥内容，也可以输入下面命令查看</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">less ~/.ssh/id_rsa.pub</span><br></pre></td></tr></table></figure>
+<h3 id="创建博客工程"><a href="#创建博客工程" class="headerlink" title="创建博客工程"></a>创建博客工程</h3><p>如果你想要挂在自己的独立域名下请去<code>google</code>查阅。如果用<code>github</code>按照如下操作。创建一个新的仓库，仍然按上面的假设，你的用户名是<code>zhangsan</code>，那么你生成的这个工程命名必须为<a href="mailto:`zhangsan@github.io" target="_blank" rel="noopener">`zhangsan@github.io</a><code>。然后将你的</code>ssh<code>秘钥添加 到你的</code>github`中。</p>
+<h3 id="在hexo中配置git"><a href="#在hexo中配置git" class="headerlink" title="在hexo中配置git"></a>在hexo中配置git</h3><p>在你的<code>hexo</code>的<code>config.yml</code>文件中配置你的git</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deploy: </span><br><span class="line">type: git </span><br><span class="line">repo: git@github.com:zhangsan/zhangsan.github.io.git </span><br><span class="line">branch: master</span><br></pre></td></tr></table></figure>
+<h3 id="将本地文件上传到github上"><a href="#将本地文件上传到github上" class="headerlink" title="将本地文件上传到github上"></a>将本地文件上传到github上</h3><p>最后将你的本地文件编译后上传到<code>github</code>上</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo g</span><br><span class="line">hexo d</span><br></pre></td></tr></table></figure>
+<p>然后大概过几分钟，在浏览器输入<code>zhangsan.github.io</code>就能看到你部署好的<code>hexo blog</code>了。</p>
+
+                    
+                    <!-- Tags Bottom -->
+                    
+                        <div class="tags-container-bottom">
+                            <i class="fa fa-tag pr3 text-main-color"></i><a class="fw3 ph1 dib" href="/tags/工具/">#工具</a> <a class="fw3 ph1 dib" href="/tags/Hexo/">#Hexo</a>
+                        </div>
+                    
+
+                    <!-- Comments -->
+                    
+
+
+
+                </div>
+                <div class="fl w-100 w-30-l center fw3 lh-copy pl4-ns tl black-50">
+                    
+                    <hr class="dn-l mw4 black-50 mt5" />
+                    
+                    <!-- Widget 1: About -->
+                    <div class="mt5 mt0-l">
+    <article class="dt db-l mw8 mw8-m mw5-ns center ml0-l bg-white mv3">
+        <div class="dn dtc-m db-l v-mid tc pr4 pr0-l" style="min-width: 6rem;">
+            <img src="/image/head_image.jpg" class="mb4-l br-100 h3 w3 h4-l w4-l dib" title="Pan Hao">
+        </div>
+        <div class="dtc db-l v-mid lh-copy measure center f6 black-50 tj">
+            Panhao,毕业于南华大学，热衷于研究框架和Android底层原理及内核机制，目前就职于TT语音。Let's go and reading the fucking source code.
+        </div>
+    </article>
+</div>
+
+                    <hr class="dn-l mw4 black-50 mt5" />
+                    
+                    <!-- Widget 2: Categories -->
+                    
+
+                    <!-- Widget 3: Recent Posts -->
+                    <div class="mt5 tc tl-l">
+    <h3>Recent Posts</h3>
+    
+        <p>
+            <a href="/2018/06/29/Ubuntu 上使用hexo+github打造个人blog/">Ubuntu下使用hexo+github打造个人blog</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/28/JAVA Class类文件结构/">Class类文件结构</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/28/Java的运行时数据区/">Java虚拟机的运行时数据区</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/28/JVM 类加载机制/">Jvm类加载机制</a>
+        </p>
+    
+        <p>
+            <a href="/2018/06/25/手写Android网络框架——CatHttp（二）/">手写Android网络框架——CatHttp（二）</a>
+        </p>
+    
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Footer -->
+<div class="bg-1 ph2 ph5-ns pv5">
+        <div class="mv8">
+            <div class="center tc">
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://twitter.com/?lang=en" target="_blank">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://www.facebook.com/" target="_blank">
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://dribbble.com/" target="_blank">
+                            <i class="fa fa-dribbble"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://github.com/klugjo/hexo-theme-anodyne" target="_blank">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://plus.google.com/" target="_blank">
+                            <i class="fa fa-google-plus"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://www.behance.net/" target="_blank">
+                            <i class="fa fa-behance"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="https://500px.com/" target="_blank">
+                            <i class="fa fa-500px"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="mailto:test@example.com" target="_blank">
+                            <i class="fa fa-envelope"></i>
+                        </a>
+                    </div>
+                
+                    <div class="dib mh3">
+                        <a class="f3 f2-ns white dim" href="/#" target="_blank">
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </div>
+                
+            </div>
+            <div class="f6 f5-ns center tc white pt5 fw3">
+                @Panhao. 一个具有Geek精神的Android开发者 <a class="link dim white" href="https://github.com/pan-haos/">Panhaos github</a>
+            </div>
+        </div>
+    </div>
+
+<!-- After Footer -->
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>
